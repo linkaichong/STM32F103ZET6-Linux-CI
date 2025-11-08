@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceRoot}",
+            "type": "cortex-debug",
+            "request": "launch",
+            "name": "cmsis-dap",
+            "servertype": "openocd",
+            "executable": "./build/DEMO.elf",
+            "breakAfterReset": true,
+            "runToEntryPoint": "main",
+            "gdbPath": "D:/Software/Embedded/Toolchain/arm-gnu-toolchain-14.3.rel1/bin/arm-none-eabi-gdb.exe",
+            // "svdFile": "./src/driver/target/stm32h7/svd/STM32H7B0x.svd",
+            "configFiles": [
+                "interface/cmsis-dap.cfg",
+                "target/stm32f1x.cfg"  // 确保是 f1x 不是 f4x
+            ],
+            "toolchainPrefix": "arm-none-eabi",
+            "showDevDebugOutput": "raw"  // 添加这一行以获取详细错误信息
+        }
+    ]
+}
