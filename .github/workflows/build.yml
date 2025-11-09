@@ -83,13 +83,12 @@ jobs:
     - name: 上传测试报告
       uses: actions/upload-artifact@v4
       with:
-        name: ci-artifacts
+        name: test-reports
         path: |
-          build/*.xml                      # 所有XML文件
-          build/*.bin                      # 所有固件
-          build/*.elf                      # 所有ELF文件
-          build/Testing/**/*.log           # 所有日志文件
-        if-no-files-found: ignore          # 没有文件时不警告
+          build/test-results.xml           # 具体的XML报告文件
+          build/DEMO.bin                   # 具体的固件文件
+          build/DEMO.elf                   # 具体的ELF文件
+          build/Testing/Temporary/LastTest.log  # 具体的日志文件
         retention-days: 7
         
     - name: 调试-查看生成的文件结构
