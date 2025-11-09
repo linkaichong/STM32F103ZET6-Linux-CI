@@ -63,8 +63,11 @@ jobs:
         
     - name: 单元测试
       run: |
-        # 使用ctest运行测试
-        ctest --test-dir build --output-on-failure
+        # 生成JUnit格式的XML报告
+        cd build
+        ctest --output-on-failure --output-junit test-results.xml
+        # 验证报告生成
+        ls -la test-results.xml
     
     - name: 上传bin文件
       uses: actions/upload-artifact@v4
