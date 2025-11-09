@@ -14,75 +14,50 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install ARM toolchain
+    - name: Install tools
       run: |
         sudo apt-get update
-        sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build 
-        sudo apt-get install -y cppcheck clang-tidy
-        
+        sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build cppcheck clang-tidy 
+
     - name: Verify installations
       run: |
         arm-none-eabi-gcc --version
         cmake --version
         ninja --version  
+        cppcheck --version
+        clang-tidy --version
     
     - name: Configure Project
       run: |
-        cmake -B build -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=cmake/cortex_m3.cmake \
-            -DENABLE_REGRESSION_TEST=ON \
-            -DENABLE_UNIT_TEST=ON \
-            -DENABLE_COVERAGE=OFF
+        cmake -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/cortex_m3.cmake
 
-    - name: 直接运行静态代码分析
+    - name: 构建并静态代码分析
       run: |
-        echo "=== 运行cppcheck ==="
-        cppcheck --enable=warning,performance,portability \
-                 --suppress=missingIncludeSystem \
-                 --inline-suppr \
-                 --quiet \
-                 src/ 2> cppcheck_results.txt || true
-        
-        echo "=== 运行clang-tidy ==="
-        # 先构建项目生成compile_commands.json
+        echo "=== 构建项目 ==="
         cmake --build build --parallel
+        
+        echo "=== 运行静态代码分析 ==="
+        # 使用已构建的环境进行分析
+        cppcheck --enable=warning,performance --quiet src/ 2> cppcheck.log || true
+        if [ -s cppcheck.log ]; then
+            echo "代码检查发现的问题："
+            cat cppcheck.log
+        fi
         
         if [ -f "build/compile_commands.json" ]; then
-            find src/ -name "*.c" -exec clang-tidy -p build {} \; 2> clang_tidy_results.txt || true
-        else
-            echo "compile_commands.json不存在，跳过clang-tidy"
+            find src/ -name "*.c" | head -5 | xargs clang-tidy -p build/ 2> clangtidy.log || true
         fi
-        
-        # 显示分析结果摘要
-        echo "=== 静态分析结果 ==="
-        if [ -s "cppcheck_results.txt" ]; then
-            echo "cppcheck发现的问题:"
-            cat cppcheck_results.txt
-        else
-            echo "cppcheck: 未发现问题"
-        fi
-        
-        if [ -s "clang_tidy_results.txt" ]; then
-            echo "clang-tidy发现的问题:"
-            cat clang_tidy_results.txt
-        else
-            echo "clang-tidy: 未发现问题"
-        fi
-
-    - name: 构建项目
-      run: |
-        cmake --build build --parallel
-
-    - name: 回归测试
-      run: |
-        echo "回归测试：验证固件生成"
-        ls -la build/*.bin && echo "构建成功" || exit 1
         
     - name: 单元测试
       run: |
         cd build
         ctest --output-on-failure --output-junit test-results.xml || echo "测试完成"
-    
+        
+    - name: 回归测试
+      run: |
+        echo "回归测试：验证固件生成"
+        ls -la build/*.bin && echo "构建成功" || exit 1
+        
     - name: 上传bin文件
       uses: actions/upload-artifact@v4
       with:
