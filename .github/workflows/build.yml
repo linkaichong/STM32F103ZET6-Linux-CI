@@ -1,5 +1,5 @@
-name: STM32 Windows CI
-
+name: STM32 Linux CI
+run-name: ${{github.actor}} Is Testing Github Action
 on:
   push:
     branches: [ master ]
@@ -17,14 +17,30 @@ jobs:
     - name: Install ARM toolchain
       run: |
         sudo apt-get update
-        sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build
+        sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build make
 
     - name: Verify installations
       run: |
         arm-none-eabi-gcc --version
         cmake --version
         ninja --version  
+        make  --version
 
+    - name: 代码质量检查
+      run: |
+        # 实现书中提到的静态分析标准
+        make static-analysis
+
+    - name: 回归测试
+      run: |
+        # 书中会指导如何设计回归测试套件
+        make regression-test
+
+    - name: 单元测试
+      run: |
+        # 应用TDD理念到嵌入式开发
+        make unit-test-coverage
+    
     - name: Build Project
       run: |
         cmake -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/cortex_m3.cmake
