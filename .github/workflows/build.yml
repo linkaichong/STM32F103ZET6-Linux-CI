@@ -60,10 +60,19 @@ jobs:
         # 方案3：简单验证构建结果
         echo "回归测试：验证固件生成"
         ls -la build/*.bin && echo "构建成功" || exit 1
-
+        
+    - name: 列出所有可用目标
+      run: |
+        cmake --build build --target help
+    
     - name: 单元测试
       run: |
-        cmake --build build --target unit-test  # 先运行基础单元测试
+        # 使用实际存在的目标名称，例如：
+        cmake --build build --target test
+        # 或
+        cmake --build build --target check
+        # 或
+        ctest --test-dir build  # 直接使用ctest
 
     - name: 上传测试报告
       uses: actions/upload-artifact@v4
