@@ -18,7 +18,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build make
-
+        sudo apt-get install -y cppcheck clang-tidy
+        
     - name: Verify installations
       run: |
         arm-none-eabi-gcc --version
