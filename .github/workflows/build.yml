@@ -17,7 +17,7 @@ jobs:
     - name: Install ARM toolchain
       run: |
         sudo apt-get update
-        sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build make
+        sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build 
         sudo apt-get install -y cppcheck clang-tidy
         
     - name: Verify installations
@@ -25,31 +25,45 @@ jobs:
         arm-none-eabi-gcc --version
         cmake --version
         ninja --version  
-        make  --version
+    
+    - name: Configure Project
+      run: |
+        cmake -B build -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/cortex_m3.cmake \
+            -DENABLE_STATIC_ANALYSIS=ON \
+            -DENABLE_REGRESSION_TEST=ON \
+            -DENABLE_UNIT_TEST=ON \
+            -DENABLE_COVERAGE=OFF
 
     - name: 代码质量检查
       run: |
-        # 直接运行静态分析工具，避免依赖Makefile
-        cppcheck --enable=warning,performance,portability --suppress=missingIncludeSystem ./src/
-        # 或者使用其他工具如clang-tidy
+        cmake --build build --target static-analysis
+
+    - name: 构建项目
+      run: |
+        #cmake --build build --target all --parallel
+        cmake --build build --parallel
 
     - name: 回归测试
       run: |
-        # 书中会指导如何设计回归测试套件
-        make regression-test
+        cmake --build build --target regression-test
 
     - name: 单元测试
       run: |
-        # 应用TDD理念到嵌入式开发
-        make unit-test-coverage
-    
-    - name: Build Project
-      run: |
-        cmake -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/cortex_m3.cmake
-        cmake --build build --target all
+        cmake --build build --target unit-test  # 先运行基础单元测试
 
-    - name: Upload Artifacts
+    - name: 上传测试报告
       uses: actions/upload-artifact@v4
       with:
-        name: firmware
+        name: firmware-artifacts
         path: build/*.bin
+        retention-days: 7
+        
+    - name: 上传测试报告
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports
+        path: |
+          build/Testing/**/*.xml  # CTest测试报告
+          build/*.xml            # 静态分析报告
+        retention-days: 7
