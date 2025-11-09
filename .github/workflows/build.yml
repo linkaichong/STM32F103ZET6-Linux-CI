@@ -63,11 +63,15 @@ jobs:
         
     - name: 单元测试
       run: |
-        # 生成JUnit格式的XML报告
         cd build
+        # 先列出可用的测试
+        ctest -N
+        # 运行测试并生成报告
         ctest --output-on-failure --output-junit test-results.xml
-        # 验证报告生成
+        # 检查生成的文件
         ls -la test-results.xml
+        echo "文件内容:"
+        cat test-results.xml || echo "文件为空或格式错误"
     
     - name: 上传bin文件
       uses: actions/upload-artifact@v4
