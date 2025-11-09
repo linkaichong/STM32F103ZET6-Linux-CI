@@ -14,6 +14,49 @@ project(DEMO LANGUAGES C CXX ASM)
 
 add_executable(${PROJECT_NAME})
 
+# 静态分析配置
+option(ENABLE_STATIC_ANALYSIS "Enable static code analysis" ON)
+
+if(ENABLE_STATIC_ANALYSIS)
+    # 查找静态分析工具
+    find_program(CPPCHECK cppcheck)
+    find_program(CLANG_TIDY clang-tidy)
+    
+    # 创建静态分析目标
+    if(CPPCHECK OR CLANG_TIDY)
+        add_custom_target(static-analysis
+            COMMENT "Running static code analysis"
+            VERBATIM
+        )
+        
+        # 添加cppcheck分析
+        if(CPPCHECK)
+            add_custom_command(TARGET static-analysis
+                COMMAND ${CPPCHECK}
+                    --enable=warning,performance,portability
+                    --suppress=missingIncludeSystem
+                    --inline-suppr
+                    --quiet
+                    ${CMAKE_SOURCE_DIR}/src
+                COMMENT "Running cppcheck"
+            )
+        endif()
+        
+        # 添加clang-tidy分析
+        if(CLANG_TIDY AND EXISTS ${CMAKE_BINARY_DIR}/compile_commands.json)
+            add_custom_command(TARGET static-analysis
+                COMMAND ${CLANG_TIDY} -p ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src/*.c
+                COMMENT "Running clang-tidy"
+            )
+        endif()
+    else()
+        message(WARNING "No static analysis tools found, static-analysis target will be empty")
+    endif()
+else()
+    message(STATUS "Static analysis disabled")
+endif()
+
+
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".elf")
 
 # cmsis-core
