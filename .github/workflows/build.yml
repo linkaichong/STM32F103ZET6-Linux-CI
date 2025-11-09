@@ -66,7 +66,7 @@ jobs:
         # 使用ctest运行测试
         ctest --test-dir build --output-on-failure
     
-    - name: 上传测试报告
+    - name: 上传bin文件
       uses: actions/upload-artifact@v4
       with:
         name: firmware-artifacts
@@ -81,3 +81,11 @@ jobs:
           build/Testing/**/*.xml  # CTest测试报告
           build/*.xml            # 静态分析报告
         retention-days: 7
+    - name: 调试-查看生成的文件结构
+      run: |
+        echo "=== 查看build目录结构 ==="
+        find build/ -name "*.xml" -o -name "*.html" -o -name "*.log" | head -20
+        echo "=== 查看Testing目录内容 ==="
+        ls -la build/Testing/ 2>/dev/null || echo "Testing目录不存在"
+        echo "=== 查看整个build目录 ==="
+        ls -la build/
