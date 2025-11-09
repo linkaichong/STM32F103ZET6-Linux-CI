@@ -85,10 +85,10 @@ jobs:
       with:
         name: test-reports
         path: |
-          build/test-results.xml           # 具体的XML报告文件
-          build/DEMO.bin                   # 具体的固件文件
-          build/DEMO.elf                   # 具体的ELF文件
-          build/Testing/Temporary/LastTest.log  # 具体的日志文件
+          build/test-results.xml
+          build/DEMO.bin
+          build/DEMO.elf
+          build/Testing/Temporary/LastTest.log
         retention-days: 7
         
     - name: 调试-查看生成的文件结构
