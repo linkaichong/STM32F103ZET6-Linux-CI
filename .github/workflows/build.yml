@@ -20,8 +20,7 @@ jobs:
         
         - name: Verify Install Tool
           run: |
-            gcc-arm-none-eabi --version
+            arm-none-eabi-gcc --version
             cmake --version
             ninja --version  
             cppcheck --version
-            clang-tidy --version
