@@ -1,14 +1,27 @@
 name: stm32-linux-cicd
-run-name: Deploy to ${{ inputs.deploy_target }} by @${{ github.actor }}
+run-name: Deploy to ${{ github.action }} by @${{ github.actor }}
 
-on: push
+on: 
+    push: 
+        branches: [main, master]
 
 jobs: 
-    build:
+    build-stm32:
         runs-on: ubuntu-latest
 
         steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-          with:
-            submodules: recursive
+        - uses: actions/checkout@v4
+        
+        - name: Install dependence
+          run: |
+            sudo apt-get update
+            sudo apt install gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build cppcheck clang-tidy
+            ls -al
+        
+        - name: Verify Install Tool
+          run: |
+            gcc-arm-none-eabi --version
+            cmake --version
+            ninja --version  
+            cppcheck --version
+            clang-tidy --version
