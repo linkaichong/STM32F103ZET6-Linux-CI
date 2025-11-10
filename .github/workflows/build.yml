@@ -39,9 +39,9 @@ jobs:
           with:
             name: firmware-artifacts
             path: |
-              build /*.bin
-              build /*.hex
-              build /*.elf
+              build/*.bin
+              build/*.hex
+              build/*.elf
             retention-days: 7
 
             
