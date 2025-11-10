@@ -16,7 +16,6 @@ jobs:
           run: |
             sudo apt-get update
             sudo apt install gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build cppcheck clang-tidy
-            ls -al
         
         - name: Verify Install Tool
           run: |
@@ -25,6 +24,9 @@ jobs:
             ninja --version  
             cppcheck --version
             clang-tidy --version
+            # 检查 cppcheck 是否支持 MISRA 插件
+            echo "Checking cppcheck MISRA support:"
+            cppcheck --help | grep -i misra || echo "MISRA addon may need manual setup"
 
         - name: Configuration 
           run: cmake -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/cortex_m3.cmake
@@ -32,16 +34,15 @@ jobs:
         - name: Build
           run: |
             cmake --build build --parallel
-            ls ./build
 
         - name: 上传bin
           uses: actions/upload-artifact@v4
           with:
             name: firmware-artifacts
             path: |
-              build /*.bin
-              build /*.hex
-              build /*.elf
+              build/*.bin
+              build/*.hex
+              build/*.elf
             retention-days: 7
 
             
