@@ -24,3 +24,10 @@ jobs:
             cmake --version
             ninja --version  
             cppcheck --version
+            clang-tidy
+
+        - name: Configuration 
+          run: cmake -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/cortex_m3.cmake
+        
+        - name: Build
+          run: cmake --build build --parallel
