@@ -1,76 +1,9 @@
-name: STM32 Linux CI
-run-name: ${{github.actor}} Is Testing Github Action
-on:
-  push:
-    branches: [ master ]
+name: stm32-linux-cicd
+run-name: Deploy to ${{ inputs.deploy_target }} by @${{ github.actor }}
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
+on: push
+jobs: 
+    build:
+        runs-on: ububtu-latest
+        
 
-    - name: Install tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi cmake ninja-build cppcheck clang-tidy 
-
-    - name: Verify installations
-      run: |
-        arm-none-eabi-gcc --version
-        cmake --version
-        ninja --version  
-        cppcheck --version
-        clang-tidy --version
-    
-    - name: Configure Project
-      run: |
-        cmake -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/cortex_m3.cmake
-
-    - name: 构建并静态代码分析
-      run: |
-        echo "=== 构建项目 ==="
-        cmake --build build --parallel
-        
-        echo "=== 运行静态代码分析 ==="
-        # 使用已构建的环境进行分析
-        cppcheck --enable=warning,performance --quiet src/ 2> cppcheck.log || true
-        if [ -s cppcheck.log ]; then
-            echo "代码检查发现的问题："
-            cat cppcheck.log
-        fi
-        
-        if [ -f "build/compile_commands.json" ]; then
-            find src/ -name "*.c" | head -5 | xargs clang-tidy -p build/ 2> clangtidy.log || true
-        fi
-        
-    - name: 单元测试
-      run: |
-        cd build
-        ctest --output-on-failure --output-junit test-results.xml || echo "测试完成"
-        
-    - name: 回归测试
-      run: |
-        echo "回归测试：验证固件生成"
-        ls -la build/*.bin && echo "构建成功" || exit 1
-        
-    - name: 上传bin文件
-      uses: actions/upload-artifact@v4
-      with:
-        name: firmware-artifacts
-        path: build/*.bin
-        retention-days: 7
-        
-    - name: 上传测试报告和分析结果
-      uses: actions/upload-artifact@v4
-      with:
-        name: analysis-reports
-        path: |
-          build/test-results.xml
-          cppcheck_results.txt
-          clang_tidy_results.txt
-        retention-days: 7
