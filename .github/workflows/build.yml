@@ -30,7 +30,9 @@ jobs:
           run: cmake -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/cortex_m3.cmake
         
         - name: Build
-          run: cmake --build build --parallel
+          run: |
+            cmake --build build --parallel
+            ls
 
         - name: 上传bin
           uses: actions/upload-artifact@v4
