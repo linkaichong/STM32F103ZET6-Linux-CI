@@ -2,8 +2,13 @@ name: stm32-linux-cicd
 run-name: Deploy to ${{ inputs.deploy_target }} by @${{ github.actor }}
 
 on: push
+
 jobs: 
     build:
-        runs-on: ububtu-latest
-        
+        runs-on: ububtu-lates
 
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
