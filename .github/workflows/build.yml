@@ -36,6 +36,6 @@ jobs:
           uses: actions/upload-artifact@v4
           with:
             name: firmware-artifacts
-            path: build *./bin
-                  build *./hel
-                  build *./afx
+            path: build /*.bin
+                  build /*.hel
+                  build /*.elf
