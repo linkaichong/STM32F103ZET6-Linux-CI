@@ -5,7 +5,7 @@ on: push
 
 jobs: 
     build:
-        runs-on: ububtu-lates
+        runs-on: ububtu-latest
 
         steps:
         - name: Checkout code
