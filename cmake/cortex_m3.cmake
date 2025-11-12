@@ -9,7 +9,7 @@ if(COMPILER_ON_PATH)
     get_filename_component(ARM_TOOLCHAIN_PATH ${COMPILER_ON_PATH} DIRECTORY)
     message(STATUS "Using ARM GCC from path = ${ARM_TOOLCHAIN_PATH}")
 else()
-    message(FATAL_ERROR "Unable to find ARM GCC (arm-none-eabi-gcc.exe). Add to your PATH")
+    message(FATAL_ERROR "Unable to find ARM GCC (arm-none-eabi-gcc). Add to your PATH")
 endif()
 
 set(CMAKE_C_COMPILER ${ARM_TOOLCHAIN_PATH}/arm-none-eabi-gcc)

@@ -1,3 +1,4 @@
+.cache/
 # 构建输出
 build/
 *.bin
